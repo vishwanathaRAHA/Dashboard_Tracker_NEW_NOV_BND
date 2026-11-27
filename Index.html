@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<style>
+  *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  body{margin:0;background:#f4f6fb;color:#1f2430}
+  header{background:#1f2a44;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  header h1{margin:0;font-size:17px}
+  .btn{background:#2c7be5;color:#fff;border:0;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.ghost{background:transparent;color:#2c7be5;border:1px solid #2c7be5}
+  .btn.danger{background:#e74c3c}.btn.warn{background:#f39c12}
+  .btn.sm{padding:4px 10px;font-size:12px}
+  .tabs{display:flex;gap:6px;background:#fff;padding:8px 20px;border-bottom:1px solid #e3e6ee;flex-wrap:wrap}
+  .tab{padding:8px 14px;cursor:pointer;border-radius:6px;color:#555;font-size:14px;position:relative}
+  .tab.active{background:#eaf1fd;color:#2c7be5;font-weight:600}
+  .tab .badge{background:#e74c3c;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:6px}
+  main{padding:18px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+  .card{background:#fff;padding:14px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .card .k{font-size:12px;color:#777}
+  .card .v{font-size:22px;font-weight:700;margin-top:4px}
+  .toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+  .toolbar input,.toolbar select{padding:7px 10px;border:1px solid #d6dbe4;border-radius:6px;font-size:13px}
+  .toolbar input[type=text]{min-width:220px}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  th,td{padding:9px 11px;text-align:left;border-bottom:1px solid #eef0f5;font-size:13px;vertical-align:middle}
+  th{background:#fafbfd;color:#555;font-weight:600;position:sticky;top:0;z-index:2}
+  tr:hover td{background:#fafbff}
+  input[type=number],input[type=text],input[type=date],input[type=datetime-local],select,textarea{padding:6px 8px;border:1px solid #d6dbe4;border-radius:6px;font-size:13px;width:100%;font-family:inherit}
+  td input[type=number]{width:70px} td select{width:90px}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+  .pill.active{background:#d4f5dd;color:#1e7a3c}
+  .pill.expired{background:#eee;color:#777}
+  .pill.w{background:#e6e9f2;color:#39406b}
+  .pill.p{background:#fff2cc;color:#8a6d00}
+  .pill.r{background:#e0d4ff;color:#5b2ea6}
+  .pill.sent{background:#d4f5dd;color:#1e7a3c}
+  .pill.na{background:#eee;color:#888}
+  .pill.remind{background:#ffe0e0;color:#c0392b}
+  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+  .modal-back.show{display:flex}
+  .modal{background:#fff;border-radius:12px;padding:20px;width:640px;max-width:100%;max-height:90vh;overflow:auto}
+  .modal h3{margin:0 0 12px}
+  .modal .close-x{position:absolute;right:18px;top:12px;cursor:pointer;font-size:22px;color:#999;border:0;background:none}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .field label{display:block;font-size:11px;color:#666;margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em}
+  .row-actions{display:flex;gap:5px;flex-wrap:wrap}
+  .muted{color:#888;font-size:12px}
+  .empty{text-align:center;color:#999;padding:26px}
+  .chartbox{background:#fff;border-radius:10px;padding:14px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .chart{width:100%;height:300px}
+  .timeline{display:flex;gap:6px;overflow-x:auto;padding:12px;background:#fff;border-radius:10px;margin-top:10px}
+  .tl-item{flex:0 0 100px;border:1px solid #e3e6ee;border-radius:8px;padding:8px;text-align:center;font-size:12px}
+  .tl-item .mo{font-weight:600;color:#1f2a44;margin-bottom:4px}
+  .tl-item .st{font-size:18px;font-weight:700}
+  .tl-item.sent{border-color:#b6e8c5;background:#f0fbf3}
+  .tl-item.pending{border-color:#f5d98c;background:#fffbe9}
+  .tl-item.review{border-color:#c6b6f0;background:#f4f0ff}
+  .tl-item.waiting{border-color:#d3d9e8;background:#f8f9fc}
+  .tl-item.na{border-color:#eee;background:#fafafa;color:#999}
+  .attach-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #eef0f5}
+  .attach-row:last-child{border-bottom:0}
+  .attach-row a{color:#2c7be5;text-decoration:none;font-weight:500}
+  .tabs-mini{display:flex;gap:4px;border-bottom:1px solid #e3e6ee;margin-bottom:12px}
+  .tab-mini{padding:8px 12px;cursor:pointer;font-size:13px;color:#666;border-bottom:2px solid transparent}
+  .tab-mini.active{color:#2c7be5;border-bottom-color:#2c7be5;font-weight:600}
+  @media(max-width:700px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📊 Dashboard Tracker</h1>
+  <button class="btn" onclick="openClientModal()">+ Add Client</button>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="clients"   onclick="switchTab('clients')">Clients</div>
+  <div class="tab"        data-tab="monthly"   onclick="switchTab('monthly')">Monthly Update</div>
+  <div class="tab"        data-tab="reminders" onclick="switchTab('reminders')">Reminders <span class="badge" id="remBadge" style="display:none">0</span></div>
+  <div class="tab"        data-tab="reports"   onclick="switchTab('reports')">Reports & Charts</div>
+</div>
+
+<main>
+  <!-- CLIENTS -->
+  <section id="tab-clients">
+    <div class="cards">
+      <div class="card"><div class="k">Active Clients</div><div class="v" id="kpi-active">–</div></div>
+      <div class="card"><div class="k">Expired Clients</div><div class="v" id="kpi-expired">–</div></div>
+      <div class="card"><div class="k">Dashboards Due</div><div class="v" id="kpi-due">–</div></div>
+      <div class="card"><div class="k">Dashboards Sent</div><div class="v" id="kpi-sent">–</div></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="searchBox" placeholder="🔍 Search client, RM, TL, insurer, TPA…" oninput="renderClients()">
+      <select id="filterStatus" onchange="renderClients()">
+        <option value="">All Status</option>
+        <option value="Active">Active</option>
+        <option value="Expired">Expired</option>
+      </select>
+      <select id="filterRM" onchange="renderClients()"><option value="">All RMs</option></select>
+      <select id="filterInsurer" onchange="renderClients()"><option value="">All Insurers</option></select>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Client</th><th>RM</th><th>Team Leader</th><th>Insurer</th><th>TPA</th>
+          <th>Cycle</th><th>Total</th><th>Sent</th><th>Remaining</th><th>Status</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="clients-body"></tbody>
+    </table>
+  </section>
+
+  <!-- MONTHLY -->
+  <section id="tab-monthly" style="display:none">
+    <div class="toolbar">
+      <label>Month:</label>
+      <input type="month" id="monthPicker" onchange="loadMonth()">
+      <button class="btn" onclick="saveMonth()">💾 Save Changes</button>
+      <span class="muted">Increasing email count → prompts for date & time of each email</span>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Client</th><th>Cycle</th><th>Emails Sent</th><th>Status</th><th>Last Email</th><th>Days Since</th><th>Notes</th></tr>
+      </thead>
+      <tbody id="month-body"></tbody>
+    </table>
+  </section>
+
+  <!-- REMINDERS -->
+  <section id="tab-reminders" style="display:none">
+    <p class="muted">Clients with status <b>P</b> or <b>R</b> where ≥ 2 days have passed since your last email.</p>
+    <table>
+      <thead>
+        <tr><th>Client</th><th>Month</th><th>Cycle</th><th>Emails</th><th>Status</th><th>Last Email</th><th>Days Since</th></tr>
+      </thead>
+      <tbody id="rem-body"></tbody>
+    </table>
+  </section>
+
+  <!-- REPORTS -->
+  <section id="tab-reports" style="display:none">
+    <div class="cards">
+      <div class="card"><div class="k">This Week — Emails</div><div class="v" id="r-w-emails">–</div></div>
+      <div class="card"><div class="k">This Week — Sent</div><div class="v" id="r-w-sent">–</div></div>
+      <div class="card"><div class="k">This Month — Emails</div><div class="v" id="r-m-emails">–</div></div>
+      <div class="card"><div class="k">This Month — Sent</div><div class="v" id="r-m-sent">–</div></div>
+      <div class="card"><div class="k">This Month — Pending/Review</div><div class="v" id="r-m-pending">–</div></div>
+      <div class="card"><div class="k">This Quarter — Sent</div><div class="v" id="r-q-sent">–</div></div>
+      <div class="card"><div class="k">This Year — Sent</div><div class="v" id="r-y-sent">–</div></div>
+    </div>
+
+    <div class="chartbox"><h4 style="margin:0 0 8px">Monthly Trend (last 12 months)</h4><div id="chart-trend" class="chart"></div></div>
+    <div class="chartbox"><h4 style="margin:0 0 8px">Status Breakdown</h4><div id="chart-status" class="chart"></div></div>
+    <div class="chartbox"><h4 style="margin:0 0 8px">By Relation Manager</h4><div id="chart-rm" class="chart"></div></div>
+  </section>
+</main>
+
+<!-- CLIENT MODAL -->
+<div class="modal-back" id="clientModal">
+  <div class="modal" style="position:relative">
+    <button class="close-x" onclick="closeModal()">×</button>
+    <h3 id="modalTitle">Add Client</h3>
+
+    <div class="tabs-mini" id="clientTabs" style="display:none">
+      <div class="tab-mini active" data-ct="details"   onclick="switchClientTab('details')">Details</div>
+      <div class="tab-mini"        data-ct="notes"     onclick="switchClientTab('notes')">Notes</div>
+      <div class="tab-mini"        data-ct="timeline"  onclick="switchClientTab('timeline')">Timeline</div>
+      <div class="tab-mini"        data-ct="files"     onclick="switchClientTab('files')">Attachments</div>
+    </div>
+
+    <div id="ct-details">
+      <input type="hidden" id="f-originalId">
+      <div class="grid2">
+        <div class="field"><label>Client ID</label><input id="f-id"></div>
+        <div class="field"><label>Client Name</label><input id="f-name"></div>
+        <div class="field"><label>Onboarded Date</label><input type="date" id="f-onb"></div>
+        <div class="field"><label>Policy Start</label><input type="date" id="f-ps"></div>
+        <div class="field"><label>Policy End</label><input type="date" id="f-pe"></div>
+        <div class="field"><label>Relation Manager</label><input id="f-rm"></div>
+        <div class="field"><label>Team Leader</label><input id="f-tl"></div>
+        <div class="field"><label>Insurer</label><input id="f-ins"></div>
+        <div class="field"><label>TPA</label><input id="f-tpa"></div>
+      </div>
+      <div style="text-align:right;margin-top:14px">
+        <button class="btn ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn" onclick="saveClient()">Save</button>
+      </div>
+
+      <div id="backfillBlock" style="display:none;margin-top:16px;border-top:1px solid #eef0f5;padding-top:12px">
+        <label style="font-size:12px;color:#666">Backfill an email timestamp (does not change count)</label>
+        <div class="grid2" style="margin-top:6px">
+          <input type="datetime-local" id="backfill-ts">
+          <input type="text" id="backfill-note" placeholder="Note (optional)">
+        </div>
+        <div style="text-align:right;margin-top:8px">
+          <button class="btn ghost" onclick="backfillTimestamp()">Add Timestamp</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="ct-notes" style="display:none">
+      <div class="field">
+        <label>Notes / Remarks</label>
+        <textarea id="f-notes" rows="8" placeholder="Free-form notes about this client…"></textarea>
+      </div>
+      <div style="text-align:right;margin-top:14px">
+        <button class="btn" onclick="saveNotes()">Save Notes</button>
+      </div>
+    </div>
+
+    <div id="ct-timeline" style="display:none">
+      <p class="muted">Every month of this client's cycle — status, emails, notes.</p>
+      <div class="timeline" id="timeline-strip"></div>
+      <table style="margin-top:14px">
+        <thead><tr><th>Month</th><th>Cycle</th><th>Emails</th><th>Status</th><th>Last Email</th><th>Email Log</th><th>Notes</th></tr></thead>
+        <tbody id="timeline-table"></tbody>
+      </table>
+    </div>
+
+    <div id="ct-files" style="display:none">
+      <div class="field">
+        <label>Upload file</label>
+        <input type="file" id="fileInput">
+      </div>
+      <div class="field">
+        <label>Remarks</label>
+        <input type="text" id="fileRemarks" placeholder="Optional remarks">
+      </div>
+      <div style="text-align:right;margin-bottom:12px">
+        <button class="btn" onclick="uploadFile()">⬆ Upload</button>
+      </div>
+      <div id="attach-list" style="border:1px solid #eef0f5;border-radius:8px;background:#fff;max-height:260px;overflow:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RENEW MODAL -->
+<div class="modal-back" id="renewModal">
+  <div class="modal">
+    <h3>Renew Client — New Cycle</h3>
+    <p class="muted">Starts a new policy cycle for <b id="renew-name"></b>. A new ClientID will be created (e.g. CLT001-C2).</p>
+    <input type="hidden" id="renew-originalId">
+    <div class="grid2">
+      <div class="field"><label>New Onboarded Date</label><input type="date" id="renew-onb"></div>
+      <div class="field"><label>New Policy Start</label><input type="date" id="renew-ps"></div>
+      <div class="field"><label>New Policy End</label><input type="date" id="renew-pe"></div>
+    </div>
+    <div style="text-align:right;margin-top:14px">
+      <button class="btn ghost" onclick="closeRenew()">Cancel</button>
+      <button class="btn" onclick="saveRenew()">Start New Cycle</button>
+    </div>
+  </div>
+</div>
+
+<!-- TIMESTAMP PROMPT MODAL -->
+<div class="modal-back" id="tsModal">
+  <div class="modal" style="width:520px">
+    <h3>Email Timestamps</h3>
+    <p class="muted" id="tsDesc">Enter the date & time of each email sent.</p>
+    <div id="tsRows"></div>
+    <div style="text-align:right;margin-top:14px">
+      <button class="btn ghost" onclick="closeTsModal()">Cancel</button>
+      <button class="btn" onclick="saveTsModal()">Save All</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMAIL LOG VIEWER -->
+<div class="modal-back" id="logModal">
+  <div class="modal" style="width:560px">
+    <h3 id="logTitle">Email Log</h3>
+    <div id="logBody" style="max-height:400px;overflow:auto;border:1px solid #eef0f5;border-radius:8px;padding:12px"></div>
+    <div style="text-align:right;margin-top:12px">
+      <button class="btn ghost" onclick="closeLogModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let CLIENTS = [];
+let CURRENT_CLIENT = null;
+let _pendingRows = null;
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+  ['clients','monthly','reminders','reports'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=(t===name?'':'none');
+  });
+  if(name==='monthly')   loadMonth();
+  if(name==='reminders') loadReminders();
+  if(name==='reports')   loadReports();
+}
+
+/* ---------- CLIENTS ---------- */
+function loadClients(){
+  google.script.run
+    .withSuccessHandler(rows=>{
+      console.log('getClients RAW:', rows, 'isArray:', Array.isArray(rows));
+      CLIENTS = Array.isArray(rows) ? rows : [];
+      buildFilterOptions();
+      renderClients();
+    })
+    .withFailureHandler(err=>{
+      console.error('getClients failed:', err);
+      alert('Backend error: ' + (err && err.message ? err.message : err));
+      CLIENTS = [];
+      renderClients();
+    })
+    .getClients();
+}
+
+function buildFilterOptions(){
+  const list = Array.isArray(CLIENTS) ? CLIENTS : [];
+  const rms = [...new Set(list.map(c=>c.RelationManager).filter(Boolean))].sort();
+  const ins = [...new Set(list.map(c=>c.Insurer).filter(Boolean))].sort();
+  document.getElementById('filterRM').innerHTML = '<option value="">All RMs</option>'+rms.map(v=>`<option>${v}</option>`).join('');
+  document.getElementById('filterInsurer').innerHTML = '<option value="">All Insurers</option>'+ins.map(v=>`<option>${v}</option>`).join('');
+}
+
+function renderClients(){
+  if (!Array.isArray(CLIENTS)) CLIENTS = [];
+  const q  = document.getElementById('searchBox').value.toLowerCase().trim();
+  const fs = document.getElementById('filterStatus').value;
+  const fr = document.getElementById('filterRM').value;
+  const fi = document.getElementById('filterInsurer').value;
+
+  let active=0, expired=0, due=0, sent=0;
+  CLIENTS.forEach(c=>{
+    if(c.Status==='Active')active++; else if(c.Status==='Expired')expired++;
+    due+=Number(c.TotalDashboardsDue)||0;
+    sent+=Number(c.DashboardsSent)||0;
+  });
+  document.getElementById('kpi-active').textContent=active;
+  document.getElementById('kpi-expired').textContent=expired;
+  document.getElementById('kpi-due').textContent=due;
+  document.getElementById('kpi-sent').textContent=sent;
+
+  const filtered = CLIENTS.filter(c=>{
+    if(fs && c.Status!==fs) return false;
+    if(fr && c.RelationManager!==fr) return false;
+    if(fi && c.Insurer!==fi) return false;
+    if(q){
+      const hay=[c.ClientID,c.ClientName,c.RelationManager,c.TeamLeader,c.Insurer,c.TPA].filter(Boolean).join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const tb = document.getElementById('clients-body');
+  tb.innerHTML = '';
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="11" class="empty">No clients match.</td></tr>';return;}
+
+  filtered.forEach(c=>{
+    const statusStr = (c.Status || 'Active').toString();
+    const cycleNo = c.CycleNumber || 1;
+    const cycleLabel = `M${Math.min(Number(c.DashboardsSent)+1,c.TotalDashboardsDue)} of ${c.TotalDashboardsDue}` + (cycleNo>1?` (C${cycleNo})`:'');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><b>${c.ClientName||''}</b><br><span class="muted">${c.ClientID||''}</span></td>
+      <td>${c.RelationManager||'-'}</td>
+      <td>${c.TeamLeader||'-'}</td>
+      <td>${c.Insurer||'-'}</td>
+      <td>${c.TPA||'-'}</td>
+      <td>${cycleLabel}</td>
+      <td>${c.TotalDashboardsDue||0}</td>
+      <td>${c.DashboardsSent||0}</td>
+      <td>${c.DashboardsRemaining||0}</td>
+      <td><span class="pill ${statusStr.toLowerCase()}">${statusStr}</span></td>
+      <td>
+        <div class="row-actions">
+          <button class="btn sm" onclick="openClient('${c.ClientID}')">Open</button>
+          ${statusStr==='Expired'?`<button class="btn sm warn" onclick="openRenew('${c.ClientID}','${(c.ClientName||'').replace(/'/g,"\\'")}')">Renew</button>`:''}
+          <button class="btn sm danger" onclick="removeClient('${c.ClientID}')">✕</button>
+        </div>
+      </td>`;
+    tb.appendChild(tr);
+  });
+}
+
+/* ---------- CLIENT MODAL ---------- */
+function openClientModal(){
+  CURRENT_CLIENT = null;
+  document.getElementById('modalTitle').textContent='Add Client';
+  document.getElementById('clientTabs').style.display='none';
+  document.getElementById('backfillBlock').style.display='none';
+  document.getElementById('f-originalId').value='';
+  ['f-id','f-name','f-onb','f-ps','f-pe','f-rm','f-tl','f-ins','f-tpa','f-notes'].forEach(id=>document.getElementById(id).value='');
+  switchClientTab('details');
+  document.getElementById('clientModal').classList.add('show');
+}
+function openClient(id){
+  const c = CLIENTS.find(x=>x.ClientID===id); if(!c) return;
+  CURRENT_CLIENT = c;
+  document.getElementById('modalTitle').textContent = c.ClientName;
+  document.getElementById('clientTabs').style.display = 'flex';
+  document.getElementById('backfillBlock').style.display = 'block';
+  document.getElementById('f-originalId').value = c.ClientID;
+  document.getElementById('f-id').value = c.ClientID;
+  document.getElementById('f-name').value = c.ClientName;
+  document.getElementById('f-onb').value = toDateInput(c.OnboardedDate);
+  document.getElementById('f-ps').value  = toDateInput(c.PolicyStart);
+  document.getElementById('f-pe').value  = toDateInput(c.PolicyEnd);
+  document.getElementById('f-rm').value  = c.RelationManager||'';
+  document.getElementById('f-tl').value  = c.TeamLeader||'';
+  document.getElementById('f-ins').value = c.Insurer||'';
+  document.getElementById('f-tpa').value = c.TPA||'';
+  document.getElementById('f-notes').value = c.Notes||'';
+  switchClientTab('details');
+  document.getElementById('clientModal').classList.add('show');
+}
+function closeModal(){document.getElementById('clientModal').classList.remove('show');}
+function switchClientTab(t){
+  document.querySelectorAll('#clientTabs .tab-mini').forEach(x=>x.classList.toggle('active',x.dataset.ct===t));
+  ['details','notes','timeline','files'].forEach(x=>{
+    document.getElementById('ct-'+x).style.display=(x===t?'':'none');
+  });
+  if(t==='timeline'&&CURRENT_CLIENT) loadTimeline(CURRENT_CLIENT.ClientID);
+  if(t==='files'&&CURRENT_CLIENT)    loadAttachments(CURRENT_CLIENT.ClientID);
+}
+function toDateInput(d){
+  if(!d) return '';
+  const s = String(d);
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+  try { return new Date(s).toISOString().slice(0,10); } catch(e){ return ''; }
+}
+
+function saveClient(){
+  const data = {
+    OriginalClientID:document.getElementById('f-originalId').value,
+    ClientID:  document.getElementById('f-id').value.trim(),
+    ClientName:document.getElementById('f-name').value.trim(),
+    OnboardedDate:document.getElementById('f-onb').value,
+    PolicyStart:  document.getElementById('f-ps').value,
+    PolicyEnd:    document.getElementById('f-pe').value,
+    RelationManager:document.getElementById('f-rm').value.trim(),
+    TeamLeader:     document.getElementById('f-tl').value.trim(),
+    Insurer:        document.getElementById('f-ins').value.trim(),
+    TPA:            document.getElementById('f-tpa').value.trim(),
+    Notes:          document.getElementById('f-notes').value
+  };
+  if(!data.ClientID||!data.ClientName) return alert('Client ID and Name required');
+  const fn = data.OriginalClientID ? 'updateClient' : 'addClient';
+  google.script.run.withSuccessHandler(res=>{
+    if(!res.ok) return alert(res.error||'Error');
+    closeModal(); loadClients();
+  })[fn](data);
+}
+function saveNotes(){
+  if(!CURRENT_CLIENT) return;
+  google.script.run.withSuccessHandler(()=>{alert('Notes saved');loadClients();})
+    .updateClientNotes(CURRENT_CLIENT.ClientID, document.getElementById('f-notes').value);
+}
+function removeClient(id){
+  if(!confirm('Delete '+id+' and all its records + files?')) return;
+  google.script.run.withSuccessHandler(loadClients).deleteClient(id);
+}
+
+/* ---------- BACKFILL ---------- */
+function backfillTimestamp() {
+  if (!CURRENT_CLIENT) return;
+  const ts = document.getElementById('backfill-ts').value.replace('T',' ');
+  const note = document.getElementById('backfill-note').value;
+  if (!ts) return alert('Pick a date & time');
+  const month = ts.slice(0,7);
+  google.script.run.withSuccessHandler(()=>{
+    alert('Timestamp added');
+    document.getElementById('backfill-ts').value = '';
+    document.getElementById('backfill-note').value = '';
+    if (CURRENT_CLIENT) loadTimeline(CURRENT_CLIENT.ClientID);
+  }).api_addEmailTimestamp(CURRENT_CLIENT.ClientID, month, ts, note);
+}
+
+/* ---------- TIMELINE ---------- */
+function loadTimeline(clientId){
+  google.script.run.withSuccessHandler(rows=>{
+    const strip = document.getElementById('timeline-strip');
+    const table = document.getElementById('timeline-table');
+    strip.innerHTML=''; table.innerHTML='';
+    rows.forEach(r=>{
+      const cls = r.Status==='✓'?'sent':r.Status==='P'?'pending':r.Status==='R'?'review':r.Status==='✗'?'na':'waiting';
+      const div = document.createElement('div');
+      div.className = `tl-item ${cls}`;
+      div.innerHTML = `<div class="mo">${r.Month}</div><div class="st">${r.Status}</div><div class="muted">${r.EmailsSent} email${r.EmailsSent==1?'':'s'}</div>`;
+      strip.appendChild(div);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.Month}</td><td>M${r.CycleNo}</td><td>${r.EmailsSent}</td><td>${r.Status}</td><td>${r.LastEmailDate||'-'}</td><td><span class="muted">${(r.EmailLog||'').replace(/ \| /g,'<br>')}</span></td><td>${r.Notes||''}</td>`;
+      table.appendChild(tr);
+    });
+  }).getTimeline(clientId);
+}
+
+/* ---------- ATTACHMENTS ---------- */
+function loadAttachments(clientId){
+  google.script.run.withSuccessHandler(rows=>{
+    const box = document.getElementById('attach-list');
+    if(!rows.length){box.innerHTML='<div class="empty">No attachments yet.</div>';return;}
+    box.innerHTML = rows.map(r=>`
+      <div class="attach-row">
+        <div>
+          <a href="${r.FileURL}" target="_blank">📎 ${r.FileName}</a>
+          <div class="muted">${r.UploadedAt} ${r.Remarks?'· '+r.Remarks:''}</div>
+        </div>
+        <button class="btn sm danger" onclick="removeFile('${r.AttachmentID}')">Delete</button>
+      </div>`).join('');
+  }).getAttachments(clientId);
+}
+function uploadFile(){
+  if(!CURRENT_CLIENT) return;
+  const inp = document.getElementById('fileInput');
+  if(!inp.files.length) return alert('Choose a file');
+  const f = inp.files[0];
+  const remarks = document.getElementById('fileRemarks').value;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    const base64 = e.target.result.split(',')[1];
+    google.script.run.withSuccessHandler(()=>{
+      document.getElementById('fileInput').value='';
+      document.getElementById('fileRemarks').value='';
+      loadAttachments(CURRENT_CLIENT.ClientID);
+    }).uploadAttachment(CURRENT_CLIENT.ClientID, f.name, f.type||'application/octet-stream', base64, remarks);
+  };
+  reader.readAsDataURL(f);
+}
+function removeFile(id){
+  if(!confirm('Delete this file?')) return;
+  google.script.run.withSuccessHandler(()=>loadAttachments(CURRENT_CLIENT.ClientID)).deleteAttachment(id);
+}
+
+/* ---------- RENEW ---------- */
+function openRenew(id,name){
+  document.getElementById('renew-originalId').value=id;
+  document.getElementById('renew-name').textContent=name;
+  ['renew-onb','renew-ps','renew-pe'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('renewModal').classList.add('show');
+}
+function closeRenew(){document.getElementById('renewModal').classList.remove('show');}
+function saveRenew(){
+  const id = document.getElementById('renew-originalId').value;
+  const onb= document.getElementById('renew-onb').value;
+  const ps = document.getElementById('renew-ps').value;
+  const pe = document.getElementById('renew-pe').value;
+  if(!onb||!ps||!pe) return alert('All dates required');
+  google.script.run.withSuccessHandler(res=>{
+    if(!res.ok) return alert(res.error||'Error');
+    closeRenew(); loadClients();
+  }).renewClient(id,onb,ps,pe);
+}
+
+/* ---------- MONTHLY ---------- */
+function loadMonth(){
+  const picker = document.getElementById('monthPicker');
+  if(!picker.value) picker.value = new Date().toISOString().slice(0,7);
+  google.script.run.withSuccessHandler(renderMonth).getMonthView(picker.value);
+}
+function renderMonth(rows){
+  const tb = document.getElementById('month-body');
+  tb.innerHTML='';
+  if(!rows.length){tb.innerHTML='<tr><td colspan="7" class="empty">No clients for this month.</td></tr>';return;}
+  rows.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><b>${r.ClientName}</b><br><span class="muted">${r.ClientID}</span></td>
+      <td>M${r.CycleNo}</td>
+      <td><input type="number" min="0" value="${r.EmailsSent||0}" data-id="${r.ClientID}" data-field="EmailsSent"></td>
+      <td><select data-id="${r.ClientID}" data-field="Status">
+        ${['W','P','R','✓','✗'].map(s=>`<option ${s===r.Status?'selected':''}>${s}</option>`).join('')}
+      </select></td>
+      <td>${r.LastEmailDate ? `<a href="#" onclick="showEmailLog('${r.ClientID}','${r.Month}');return false;">${r.LastEmailDate}</a>` : '-'}</td>
+      <td>${r.DaysSinceEmail!==''?r.DaysSinceEmail+'d':'-'}</td>
+      <td><input type="text" data-id="${r.ClientID}" data-field="Notes" value="${(r.Notes||'').replace(/"/g,'&quot;')}"></td>`;
+    tb.appendChild(tr);
+  });
+}
+function saveMonth(){
+  const month = document.getElementById('monthPicker').value;
+  const map = {};
+  document.querySelectorAll('#month-body [data-id]').forEach(el=>{
+    const id = el.dataset.id;
+    map[id]=map[id]||{ClientID:id,Month:month};
+    map[id][el.dataset.field] = el.dataset.field==='EmailsSent'?Number(el.value):el.value;
+  });
+  const rows = Object.values(map);
+
+  google.script.run.withSuccessHandler(resp=>{
+    if (resp.needsTimestamps.length === 0) {
+      google.script.run.withSuccessHandler(()=>{ alert('Saved ✓'); loadClients(); }).updateMonth(rows, {});
+      return;
+    }
+    openTsModal(resp.needsTimestamps, rows);
+  }).api_prepareMonthUpdate(rows);
+}
+
+/* ---------- TS MODAL ---------- */
+function openTsModal(needs, rows) {
+  _pendingRows = rows;
+  const box = document.getElementById('tsRows');
+  box.innerHTML = '';
+  needs.forEach(n=>{
+    for (let i=0;i<n.Count;i++) {
+      const key = n.ClientID + '|' + n.Month;
+      const inputId = `ts_${n.ClientID}_${n.Month}_${i}`;
+      const now = new Date();
+      const def = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      box.insertAdjacentHTML('beforeend', `
+        <div class="field" style="margin-bottom:8px">
+          <label>${n.ClientName} — ${n.Month} — email ${i+1} of ${n.Count}</label>
+          <input type="datetime-local" id="${inputId}" data-key="${key}" value="${def}">
+        </div>`);
+    }
+  });
+  document.getElementById('tsModal').classList.add('show');
+}
+function pad(n){ return String(n).padStart(2,'0'); }
+function closeTsModal(){ document.getElementById('tsModal').classList.remove('show'); }
+
+function saveTsModal() {
+  const map = {};
+  document.querySelectorAll('#tsRows input[data-key]').forEach(inp=>{
+    const key = inp.dataset.key;
+    map[key] = map[key] || [];
+    map[key].push(inp.value.replace('T',' '));
+  });
+  google.script.run.withSuccessHandler(()=>{
+    closeTsModal();
+    alert('Saved with timestamps ✓');
+    loadClients();
+  }).updateMonth(_pendingRows, map);
+}
+
+/* ---------- EMAIL LOG VIEWER ---------- */
+function showEmailLog(clientId, month) {
+  google.script.run.withSuccessHandler(r=>{
+    document.getElementById('logTitle').textContent = `Email Log — ${clientId} • ${month}`;
+    const body = document.getElementById('logBody');
+    if (!r.list.length) { body.innerHTML = '<div class="muted">No emails logged.</div>'; }
+    else {
+      body.innerHTML = r.list.map((ts,i)=>`
+        <div style="padding:8px 6px;border-bottom:1px solid #eef0f5">
+          <b>#${i+1}</b> &nbsp; ${ts}
+        </div>`).join('');
+    }
+    document.getElementById('logModal').classList.add('show');
+  }).api_getEmailLog(clientId, month);
+}
+function closeLogModal(){ document.getElementById('logModal').classList.remove('show'); }
+
+/* ---------- REMINDERS ---------- */
+function loadReminders(){
+  google.script.run.withSuccessHandler(rows=>{
+    const tb=document.getElementById('rem-body'); tb.innerHTML='';
+    const badge=document.getElementById('remBadge');
+    if(!rows.length){badge.style.display='none';tb.innerHTML='<tr><td colspan="7" class="empty">🎉 No reminders.</td></tr>';return;}
+    badge.style.display='inline-block'; badge.textContent=rows.length;
+    rows.forEach(r=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td><b>${r.ClientName}</b><br><span class="muted">${r.ClientID}</span></td>
+        <td>${r.Month}</td><td>M${r.CycleNo}</td><td>${r.EmailsSent}</td>
+        <td><span class="pill remind">${r.Status}</span></td>
+        <td>${r.LastEmailDate}</td><td><b>${r.DaysSinceEmail}d</b></td>`;
+      tb.appendChild(tr);
+    });
+  }).getReminders();
+}
+
+/* ---------- REPORTS + CHARTS ---------- */
+function loadReports(){
+  google.script.run.withSuccessHandler(r=>{
+    document.getElementById('r-w-emails').textContent=r.weekly.emails;
+    document.getElementById('r-w-sent').textContent=r.weekly.sent;
+    document.getElementById('r-m-emails').textContent=r.monthly.emails;
+    document.getElementById('r-m-sent').textContent=r.monthly.sent;
+    document.getElementById('r-m-pending').textContent=r.monthly.pending;
+    document.getElementById('r-q-sent').textContent=r.quarterly.sent;
+    document.getElementById('r-y-sent').textContent=r.yearly.sent;
+  }).getReports();
+
+  google.script.run.withSuccessHandler(drawCharts).getChartData();
+}
+
+function drawCharts(d){
+  google.charts.load('current',{packages:['corechart','bar']});
+  google.charts.setOnLoadCallback(()=>{
+    const trendData = new google.visualization.DataTable();
+    trendData.addColumn('string','Month');
+    trendData.addColumn('number','Sent');
+    trendData.addColumn('number','Pending');
+    trendData.addColumn('number','Emails');
+    d.monthlyTrend.forEach(m=>trendData.addRow([m.month,m.sent,m.pending,m.emails]));
+    new google.visualization.LineChart(document.getElementById('chart-trend')).draw(trendData,{
+      curveType:'function',legend:{position:'bottom'},colors:['#27ae60','#f39c12','#2c7be5'],
+      chartArea:{width:'85%',height:'70%'},backgroundColor:'transparent'
+    });
+
+    const sData = google.visualization.arrayToDataTable(d.statusBreakdown);
+    new google.visualization.PieChart(document.getElementById('chart-status')).draw(sData,{
+      pieHole:0.4,legend:{position:'right'},colors:['#27ae60','#f39c12','#8e44ad','#95a5a6','#bdc3c7'],
+      chartArea:{width:'80%',height:'80%'},backgroundColor:'transparent'
+    });
+
+    const rmData = google.visualization.arrayToDataTable(d.byRM);
+    new google.visualization.ColumnChart(document.getElementById('chart-rm')).draw(rmData,{
+      legend:{position:'bottom'},colors:['#27ae60','#f39c12'],
+      chartArea:{width:'80%',height:'70%'},backgroundColor:'transparent'
+    });
+  });
+}
+
+/* Init */
+loadClients();
+google.script.run.withSuccessHandler(()=>{}).getReminders();
+</script>
+</body>
+</html>
